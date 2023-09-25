@@ -1,0 +1,76 @@
+// import { response } from 'express';
+import dotenv from 'dotenv';
+import express from 'express';
+import bodyParser from 'body-parser';
+import mongoose from 'mongoose';
+import passport from 'passport';
+import passportLocalMongoose from 'passport-local-mongoose';
+import session from 'express-session';
+import cors from 'cors';
+import AdminRoutes from './Routes/AdminAPIs.js'
+import GoogleAuth from 'passport-google-oauth2';
+
+dotenv.config();
+const app = express();
+
+passport.serializeUser(function (user, done) {
+    done(null, user);
+})
+
+passport.deserializeUser(function (user, done) {
+    done(null, user);
+})
+
+
+
+app.use(
+    cors({
+        origin: "http://localhost:3000",
+        methods: "GET,POST,PUT,DELETE",
+        credentials: true
+    })
+);
+
+
+app.use(bodyParser.json({ limit: "30mb", extended: true }));
+app.use(bodyParser.urlencoded({ extended: true }));
+
+mongoose.connect('mongodb+srv://jeetakminder:heyideliverhere@i-delivery-cluster.fwv82t2.mongodb.net/?retryWrites=true&w=majority', { useNewUrlParser: true });
+
+
+app.enable('trust proxy');
+app.use(session({
+    secret: 'cats-secret',
+    saveUninitialized: true,
+    resave: false,
+    proxy: true
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+
+app.get('/abcde', (req, res) => {
+    console.log(req.user);
+    res.send("abcd")
+})
+
+
+
+
+app.get('/', (req, res) => {
+    console.log(req.user);
+    res.send("ABCD");
+});
+app.use('/admin', AdminRoutes);
+
+app.get('/login', (req, res) => {
+    console.log(req.user);
+    if (req.isAuthenticated()) {
+        res.send("Cookies Saved");
+    } else {
+        res.send("Cookies not Saved ")
+    }
+})
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+    console.log("Server Running at 5000");
+})
