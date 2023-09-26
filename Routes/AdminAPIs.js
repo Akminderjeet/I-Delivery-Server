@@ -6,7 +6,7 @@ import bodyParser from 'body-parser';
 import mongoose from 'mongoose';
 import passport from "passport";
 import GoogleAuth from 'passport-google-oauth2';
-
+import { addNode } from '../Controllers/AdminController.js'
 
 var GoogleStrategy = GoogleAuth.Strategy;
 passport.use(new GoogleStrategy({
@@ -50,4 +50,6 @@ router.get('/login', (req, res) => {
 router.get('/noAccess', (req, res) => {
     res.send("You Lier");
 })
+
+router.post('/addmidpoint', addNode);
 export default router;
