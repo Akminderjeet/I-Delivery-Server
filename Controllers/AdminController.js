@@ -37,12 +37,14 @@ export const addNode = async (req, res) => {
                             var distanceObject1 = {
                                 Distance: dist,
                                 FirstPoint: Lastid,
-                                SecondPoint: Innerresult[j]._id
+                                SecondPoint: Innerresult[j]._id,
+                                City: Innerresult[j].city
                             }
                             var distanceObject2 = {
                                 Distance: dist,
                                 FirstPoint: Innerresult[j]._id,
-                                SecondPoint: Lastid
+                                SecondPoint: Lastid,
+                                City: Innerresult[j].city
                             }
                             DistanceEdgeSchema.create(distanceObject1).then((distanceResult) => {
                                 console.log(distanceResult);
