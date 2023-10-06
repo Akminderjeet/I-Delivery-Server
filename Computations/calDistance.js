@@ -7,7 +7,7 @@ export const findDistance = (x1, y1, x2, y2) => {
     // Calculate the distance in meters
     const distanceInMeters = geolib.getDistance(point1, point2);
 
-    console.log(`Distance between the two points: ${distanceInMeters} meters`);
+    //console.log(`Distance between the two points: ${distanceInMeters} meters`);
     return distanceInMeters;
 
 }
