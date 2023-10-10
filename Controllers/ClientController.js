@@ -12,6 +12,4 @@ export const createDelivery = async (req, res) => {
     var endNode = await ClosestNode(obj.destinationLat, obj.destinationLong, obj.city);
     console.log(endNode);
     var path = PathFinder(startNode, endNode, obj.city);
-
-
 }

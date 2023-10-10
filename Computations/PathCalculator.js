@@ -38,7 +38,8 @@ export const PathFinder = async (source, destination, city) => {
     while (destination != source && destination != undefined) {
         //console.log(destination);
         res.push(destination);
-        destination = parent[destination];
+        destination = parent.get(destination);
+        //console.log("dest" + destination);
     }
     res.push(source);
     console.log(res);

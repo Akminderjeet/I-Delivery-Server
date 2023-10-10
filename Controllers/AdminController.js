@@ -33,7 +33,7 @@ export const addNode = async (req, res) => {
                         var dist = findDistance(result.latitude, result.longitude, Innerresult[j].latitude, Innerresult[j].longitude);
                         if (dist > 2000) {
                             // to add multiple points int the way
-                            dist = dist - 100;
+                            dist = (dist) - 400;
                             var distanceObject1 = {
                                 Distance: dist,
                                 FirstPoint: Lastid,
