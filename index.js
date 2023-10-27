@@ -10,6 +10,7 @@ import cors from 'cors';
 import AdminRoutes from './Routes/AdminAPIs.js'
 import GoogleAuth from 'passport-google-oauth2';
 import ClientRoutes from './Routes/ClientAPIs.js'
+import AgentRoutes from './Routes/AgentAPIs.js'
 
 dotenv.config();
 const app = express();
@@ -63,6 +64,7 @@ app.get('/', (req, res) => {
 });
 app.use('/admin', AdminRoutes);
 app.use('/client', ClientRoutes)
+app.use('/agent', AgentRoutes);
 app.get('/login', (req, res) => {
     console.log(req.user);
     if (req.isAuthenticated()) {
