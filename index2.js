@@ -12,6 +12,9 @@ import bodyParser from 'body-parser';
 import cors from 'cors'
 import { Agent } from 'http';
 import AgentSchema from './Models/AgentProfile.js';
+import passport from "passport";
+import GoogleAuth from 'passport-google-oauth2';
+import session from 'express-session';
 const app = express();
 const server = createServer(app);
 
@@ -53,59 +56,156 @@ app.use(
     })
 );
 
+passport.serializeUser(function (user, done) {
+    done(null, user);
+})
+
+passport.deserializeUser(function (user, done) {
+    done(null, user);
+})
 
 
-cron.schedule('* */10 * * *', () => {
-    console.log('running a task 5 minutes');
-    MidPoints.aggregate([
-        {
-            $group: {
-                _id: "$city"
-            }
-        }
-    ]).then((result) => {
-        result.forEach((item) => {
-            console.log(item._id);
-            myMap.set(item._id, []);
-            io.emit(item._id, item._id);
-            setInterval(async () => {
-                MidPoints.find({ city: item._id }).then((midPoints) => {
-                    midPoints.forEach((point) => {
-                        console.log(point.id);
-                        Orders.find({ next: point.id, current: { $exists: false } }, { _id: 1 }).then((parcels) => {
-                            console.log(parcels);
-                            console.log("-----");
-                            AgentSchema.findOne({ status: 1, city: item._id }).then((agent) => {
-                                console.log(agent);
-                                console.log("+++");
-                            })
-                        })
-                        Orders.aggregate([
-                            {
-                                $match: {
-                                    current: point._id
-                                }
-                            },
-                            {
-                                $group: {
-                                    _id: "$next",
-                                    ids: { $push: "$_id" }
-                                }
-                            }
-                        ]).then((parcels) => {
-                        })
-                    })
-                })
-            }, 1000);
-        })
+app.enable('trust proxy');
+app.use(session({
+    secret: 'cats-secret',
+    saveUninitialized: true,
+    resave: false,
+    proxy: true
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+
+
+var GoogleStrategy = GoogleAuth.Strategy;
+passport.use(new GoogleStrategy({
+    clientID: '803687131159-lf1ifb6kia218gc19msoa333ecce2f5n.apps.googleusercontent.com',
+    clientSecret: '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',
+    callbackURL: "http://localhost:4000/google/callback",
+    passReqToCallback: true
+},
+    function (request, accessToken, refreshToken, profile, done) {
+        console.log("REACHED")
+        /*if (profile && profile._json && profile._json.email && profile._json.email == 'jeetakminder@gmail.com')
+            return done(null, profile);
+        else return done(null);*/
+        done(null, profile);
+
+    }
+));
+
+
+app.get('/auth/google',
+    passport.authenticate('google', {
+        scope: [
+            'profile',
+            'email'
+        ]
     })
+);
 
-});
+app.get('/google/callback',
+    passport.authenticate('google', { failureRedirect: '/' }),
+    function (req, res) {
+        console.log(req.user);
+        // res.redirect('http://localhost:3000/');
+        res.redirect('http://localhost:3000/agent/profile');
+    }
+);
+
+
+
+
+
+
+// cron.schedule('* */10 * * *', () => {
+//     console.log('running a task 5 minutes');
+//     MidPoints.aggregate([
+//         {
+//             $group: {
+//                 _id: "$city"
+//             }
+//         }
+//     ]).then((result) => {
+//         result.forEach((item) => {
+//             console.log(item._id);
+//             myMap.set(item._id, []);
+//             io.emit(item._id, item._id);
+//             setInterval(async () => {
+//                 MidPoints.find({ city: item._id }).then((midPoints) => {
+//                     midPoints.forEach((point) => {
+//                         console.log(point.id);
+//                         Orders.find({ next: point.id, current: { $exists: false } }, { _id: 1 }).then((parcels) => {
+//                             console.log(parcels);
+//                             console.log("-----");
+//                             AgentSchema.findOne({ status: 1, city: item._id }).then((agent) => {
+//                                 console.log(agent);
+//                                 console.log("+++");
+//                             })
+//                         })
+//                         Orders.aggregate([
+//                             {
+//                                 $match: {
+//                                     current: point._id
+//                                 }
+//                             },
+//                             {
+//                                 $group: {
+//                                     _id: "$next",
+//                                     ids: { $push: "$_id" }
+//                                 }
+//                             }
+//                         ]).then((parcels) => {
+//                         })
+//                     })
+//                 })
+//             }, 1000);
+//         })
+//     })
+
+// });
+
 
 
 app.post('/setProfile', (req, res) => {
-    console.log(req.body.obj)
-    res.send("ABCD");
+    console.log("asdf")
+    console.log(req.user);
+    if (req.user && req.body && req.body.obj) {
+        var data = {};
+        var obj = req.body.obj;
+        data.name = obj.name;
+        data.email = req.user.email;
+        data.mobile = obj.mobile;
+        data.city = obj.city;
+        data.gender = obj.gender;
+        data.adhar = obj.aadharCard;
+        data.upi = obj.bankUpi;
+        data.status = 0;
+        AgentSchema.findOne({ email: req.user.email }).then((result) => {
+            console.log("++++++++++++++++++++++++++++++++++++==========================");
+            console.log(result);
+            if (result != null) {
+                console.log("--------------------------------")
+                AgentSchema.updateOne({ email: req.user.email }, data).then((updated) => {
+                    console.log(updated);
+                }).catch((err) => {
+                    console.log(err);
+                })
+            } else {
+                console.log("________________________________")
+                console.log(data)
+                AgentSchema.create(data).then((created) => {
+                    console.log(created);
+                }).catch((err) => {
+                    console.log(err);
+                })
+            }
+        }).catch((err) => {
+
+        })
+
+    } else {
+        res.status(400).json({ error: "Login Credentials Missing. Please Log In" });
+    }
 })
 
 app.post('/setCoordinates', (req, res) => {

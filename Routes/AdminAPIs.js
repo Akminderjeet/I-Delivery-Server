@@ -7,6 +7,7 @@ import mongoose from 'mongoose';
 import passport from "passport";
 import GoogleAuth from 'passport-google-oauth2';
 import { addNode } from '../Controllers/AdminController.js'
+import AgentSchema from '../Models/AgentProfile.js'
 
 var GoogleStrategy = GoogleAuth.Strategy;
 passport.use(new GoogleStrategy({
@@ -42,6 +43,14 @@ router.get('/auth/google',
     })
 );
 
+router.get('/getRequest', (req, res) => {
+    console.log("dffffffffffffffffff");
+    AgentSchema.find({}).then((results) => {
+        res.json(results);
+    }).catch((err) => {
+        console.log(err);
+    })
+})
 
 router.get('/login', (req, res) => {
     console.log(req.user);
