@@ -59,6 +59,24 @@ router.get('/login', (req, res) => {
 router.get('/noAccess', (req, res) => {
     res.send("You Lier");
 })
+router.patch('/acceptRequest/:id', (req, res) => {
+    console.log(req.params);
+    AgentSchema.updateOne({ _id: req.params.id }, { $set: { status: 1 } }).then((result) => {
+        res.send({ Message: "SuccessFully Accepted" });
+    }).catch((err) => {
+        console.log(err);
+        res.status(400);
+    })
+})
+router.patch('/deleteRequest/:id', (req, res) => {
+    console.log(req.params);
+    AgentSchema.updateOne({ _id: req.params.id }, { $set: { status: 2 } }).then((result) => {
+        res.send({ Message: "SuccessFully Deleted" });
+    }).catch((err) => {
+        console.log(err);
+        res.status(400);
+    })
+})
 
 router.post('/addmidpoint', addNode);
 export default router;
