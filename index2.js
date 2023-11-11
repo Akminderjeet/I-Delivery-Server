@@ -15,6 +15,7 @@ import AgentSchema from './Models/AgentProfile.js';
 import passport from "passport";
 import GoogleAuth from 'passport-google-oauth2';
 import session from 'express-session';
+import OrdersAssigned from './Models/OrdersAssigned.js';
 const app = express();
 const server = createServer(app);
 
@@ -117,54 +118,86 @@ app.get('/google/callback',
 
 
 
-// cron.schedule('* */10 * * *', () => {
-//     console.log('running a task 5 minutes');
-//     MidPoints.aggregate([
-//         {
-//             $group: {
-//                 _id: "$city"
-//             }
-//         }
-//     ]).then((result) => {
-//         result.forEach((item) => {
-//             console.log(item._id);
-//             myMap.set(item._id, []);
-//             io.emit(item._id, item._id);
-//             setInterval(async () => {
-//                 MidPoints.find({ city: item._id }).then((midPoints) => {
-//                     midPoints.forEach((point) => {
-//                         console.log(point.id);
-//                         Orders.find({ next: point.id, current: { $exists: false } }, { _id: 1 }).then((parcels) => {
-//                             console.log(parcels);
-//                             console.log("-----");
-//                             AgentSchema.findOne({ status: 1, city: item._id }).then((agent) => {
-//                                 console.log(agent);
-//                                 console.log("+++");
-//                             })
-//                         })
-//                         Orders.aggregate([
-//                             {
-//                                 $match: {
-//                                     current: point._id
-//                                 }
-//                             },
-//                             {
-//                                 $group: {
-//                                     _id: "$next",
-//                                     ids: { $push: "$_id" }
-//                                 }
-//                             }
-//                         ]).then((parcels) => {
-//                         })
-//                     })
-//                 })
-//             }, 1000);
-//         })
-//     })
+// cron.schedule('* * * * *', () => {
+// console.log('running a task 5 minutes');
+// MidPoints.aggregate([
+// {
+// $group: {
+// _id: "$city"
+// }
+// }
+// ]).then((result) => {
+// result.forEach((item) => {
+// console.log(item._id);
+// myMap.set(item._id, []);
+// io.emit(item._id, item._id);
+// setInterval(async () => {
+// MidPoints.find({ city: item._id }).then((midPoints) => {
+// midPoints.forEach((point) => {
+// console.log(point.id);
+// Orders.find({ next: point.id, current: { $exists: false } }, { _id: 1 }).then((parcels) => {
+// console.log(parcels);
+// console.log("-----");
+// AgentSchema.findOne({ status: 1, city: item._id }).then((agent) => {
+// if (agent) {
+// AgentSchema.updateOne({ _id: agent._id }, { $set: { status: 4 } })
+// parcels.forEach((parcel) => {
+// OrdersAssigned.create({ agent: agent._id, order: parcel._id, activeStatus: 1 }).then(() => {
+// console.log("Updated++++++++++++++++++++++++++++++++++++++++")
 
+// })
+// })
+// } else {
+// console.log(agent);
+// console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+// }
+// }).catch((err) => {
+// console.log(err);
+// })
+// })
+// Orders.aggregate([
+// {
+// $match: {
+// current: point._id
+// }
+// },
+// {
+// $group: {
+// _id: "$next",
+// ids: { $push: "$_id" }
+// }
+// }
+// ]).then((parcels) => {
+// })
+// })
+// })
+// }, 1000);
+// })
+// })
 // });
 
-
+app.get('/agent/getOrders/', (req, res) => {
+    console.log("asdff");
+    if (req && req.user) {
+        AgentSchema.find({ email: req.user.email }, { _id: 1 }).then((result) => {
+            if (result.length) {
+                console.log(result);
+                OrdersAssigned.find({ agent: result[0]._id, activeStatus: 1 }).populate('order').then((result) => {
+                    console.log(result);
+                    res.send(result);
+                }).catch((err) => {
+                    console.log(err);
+                })
+            } else {
+                res.status(400).send({ message: "Profile Details Missing" });
+            }
+        }).catch((err) => {
+            console.log(err);
+        })
+    } else {
+        res.status(400).send({ message: "Not Logged In" });
+    }
+})
 
 app.post('/setProfile', (req, res) => {
     console.log("asdf")
