@@ -135,13 +135,14 @@ app.get('/google/callback',
 // MidPoints.find({ city: item._id }).then((midPoints) => {
 // midPoints.forEach((point) => {
 // console.log(point.id);
-// Orders.find({ next: point.id, current: { $exists: false } }, { _id: 1 }).then((parcels) => {
+// Orders.find({ next: point.id,stage:0 ,current: { $exists: false } }, { _id: 1 }).then((parcels) => {
 // console.log(parcels);
 // console.log("-----");
 // AgentSchema.findOne({ status: 1, city: item._id }).then((agent) => {
 // if (agent) {
 // AgentSchema.updateOne({ _id: agent._id }, { $set: { status: 4 } })
 // parcels.forEach((parcel) => {
+// Add code for parcel stage update
 // OrdersAssigned.create({ agent: agent._id, order: parcel._id, activeStatus: 1 }).then(() => {
 // console.log("Updated++++++++++++++++++++++++++++++++++++++++")
 
@@ -236,6 +237,46 @@ app.post('/setProfile', (req, res) => {
 
         })
 
+    } else {
+        res.status(400).json({ error: "Login Credentials Missing. Please Log In" });
+    }
+})
+
+app.post("/agent/pickup", (req, res) => {
+    if (req && req.user) {
+        console.log(req.body);
+        Orders.updateOne({ _id: req.body.orderId }, { $set: { stage: 1 } }).then((result) => {
+            res.send(result);
+        })
+    } else {
+        res.status(400).json({ error: "Login Credentials Missing. Please Log In" });
+    }
+})
+app.post("/agent/deliver", (req, res) => {
+    if (req && req.user) {
+        var orderId = req.body.orderId;
+        console.log(orderId);
+        Orders.findOne({ _id: orderId }).then((result) => {
+            if (result == null) {
+                res.status(400).json({ error: "Error updating Data" });
+            } else if (result.status == 1000) {
+                Orders.updateOne({ _id: orderId }, { $set: { stage: 0, status: 100000 } }).then((updatedResult) => {
+                    OrdersAssigned.updateMany({ order: orderId }, { $set: { activeStatus: 2 } });
+                    res.send(updatedResult);
+
+                })
+            } else if (result.status == result.path.length) {
+                Orders.updateOne({ _id: orderId }, { $set: { stage: 0, status: 1000, current: result.next, next: "Home" } }).then((updatedResult) => {
+                    OrdersAssigned.updateMany({ order: orderId }, { $set: { activeStatus: 2 } });
+                    res.send(updatedResult);
+                })
+            } else {
+                Orders.updateOne({ _id: orderId }, { $set: { stage: 0, status: result.status + 1, current: result.next, next: result.path[result.status] } }).then((updatedResult) => {
+                    OrdersAssigned.updateMany({ order: orderId }, { $set: { activeStatus: 2 } });
+                    res.send(updatedResult);
+                })
+            }
+        })
     } else {
         res.status(400).json({ error: "Login Credentials Missing. Please Log In" });
     }

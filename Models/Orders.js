@@ -1,6 +1,7 @@
 import mongoose from 'mongoose'
 
 const orders = mongoose.Schema({
+    // Number of Node at which it is reached
     status: Number,
     city: String,
     current: String,
@@ -13,7 +14,9 @@ const orders = mongoose.Schema({
         lat: String,
         lng: String,
     },
-    path: [String]
+    path: [String],
+    //  Stage -> Assigned -> 1  Order Picked -> 2     Order Delivered -> 0
+    stage: Number
 
 })
 const Orders = mongoose.model('Orders', orders);
