@@ -16,6 +16,7 @@ import passport from "passport";
 import GoogleAuth from 'passport-google-oauth2';
 import session from 'express-session';
 import OrdersAssigned from './Models/OrdersAssigned.js';
+import { ObjectId } from 'mongodb';
 const app = express();
 const server = createServer(app);
 
@@ -256,7 +257,10 @@ app.post("/agent/deliver", (req, res) => {
     if (req && req.user) {
         var orderId = req.body.orderId;
         console.log(orderId);
+        console.log("---------------------------------------------------")
         Orders.findOne({ _id: orderId }).then((result) => {
+            console.log("???????????????????????????????????????????????????????");
+            console.log(result);
             if (result == null) {
                 res.status(400).json({ error: "Error updating Data" });
             } else if (result.status == 1000) {
@@ -267,16 +271,67 @@ app.post("/agent/deliver", (req, res) => {
                 })
             } else if (result.status == result.path.length) {
                 Orders.updateOne({ _id: orderId }, { $set: { stage: 0, status: 1000, current: result.next, next: "Home" } }).then((updatedResult) => {
-                    OrdersAssigned.updateMany({ order: orderId }, { $set: { activeStatus: 2 } });
+                    console.log("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+                    var orderID = orderId.toString();
+                    OrdersAssigned.updateMany({ order: orderID }, { $set: { activeStatus: 2 } }).then((resultt) => {
+                        console.log(resultt);
+                    })
                     res.send(updatedResult);
+                }).catch((err) => {
+                    console.log(err);
                 })
             } else {
                 Orders.updateOne({ _id: orderId }, { $set: { stage: 0, status: result.status + 1, current: result.next, next: result.path[result.status] } }).then((updatedResult) => {
-                    OrdersAssigned.updateMany({ order: orderId }, { $set: { activeStatus: 2 } });
+                    console.log(updatedResult)
+                    var objj = { order: orderId };
+                    OrdersAssigned.updateMany(objj, { $set: { activeStatus: 2 } }).then((resultt) => {
+                        console.log(resultt);
+                    });
                     res.send(updatedResult);
                 })
             }
+        }).catch((err) => {
+            console.log(err);
         })
+    } else {
+        res.status(400).json({ error: "Login Credentials Missing. Please Log In" });
+    }
+})
+app.post('/agent/getLocation', (req, res) => {
+    if (req && req.user) {
+        var obj = req.body;
+        console.log(obj);
+        if (obj.order.status == 0) {
+            var location = {};
+            location.source = obj.order.start;
+            MidPoints.findOne({ _id: obj.order.next }).then((result) => {
+                location.destination = {};
+                location.destination.lat = result.latitude;
+                location.destination.lng = result.longitude;
+            })
+        } else if (obj.order.status == obj.order.path.length) {
+            var location = {};
+            location.destination = obj.order.end;
+            MidPoints.findOne({ _id: obj.order.current }).then((result) => {
+                location.source = {};
+                location.source.lat = result.latitude;
+                location.source.lng = result.longitude;
+            })
+        } else {
+            var location = {};
+            MidPoints.findOne({ _id: obj.order.current }).then((result) => {
+                location.source = {};
+                location.source.lat = result.latitude;
+                location.source.lng = result.longitude;
+            })
+            MidPoints.findOne({ _id: obj.order.next }).then((result) => {
+                location.destination = {};
+                location.destination.lat = result.latitude;
+                location.destination.lng = result.longitude;
+            })
+
+        }
+        res.send(location);
     } else {
         res.status(400).json({ error: "Login Credentials Missing. Please Log In" });
     }

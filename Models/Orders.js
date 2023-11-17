@@ -6,6 +6,7 @@ const orders = mongoose.Schema({
     city: String,
     current: String,
     next: String,
+    owner: String,
     start: {
         lat: String,
         lng: String

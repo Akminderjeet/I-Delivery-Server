@@ -3,7 +3,7 @@ import Orders from './Orders.js'
 const ordersAssigned = mongoose.Schema({
     agent: String,
     order: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: String,
         ref: 'Orders',
     },
     pickup: String,
