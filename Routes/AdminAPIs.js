@@ -8,6 +8,7 @@ import passport from "passport";
 import GoogleAuth from 'passport-google-oauth2';
 import { addNode } from '../Controllers/AdminController.js'
 import AgentSchema from '../Models/AgentProfile.js'
+import { trackPoints } from "../Controllers/AdminController.js";
 
 var GoogleStrategy = GoogleAuth.Strategy;
 passport.use(new GoogleStrategy({
@@ -79,4 +80,5 @@ router.patch('/deleteRequest/:id', (req, res) => {
 })
 
 router.post('/addmidpoint', addNode);
+router.get('/trackpoints', trackPoints);
 export default router;

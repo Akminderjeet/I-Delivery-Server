@@ -63,3 +63,10 @@ export const addNode = async (req, res) => {
 
     }
 }
+export const trackPoints = async (req, res) => {
+    MidPointSchema.find().then((result) => {
+        res.send(result);
+    }).catch((err) => {
+        console.log(err);
+    })
+}

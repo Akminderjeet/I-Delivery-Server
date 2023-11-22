@@ -37,7 +37,7 @@ app.use(
 app.use(bodyParser.json({ limit: "30mb", extended: true }));
 app.use(bodyParser.urlencoded({ extended: true }));
 
-mongoose.connect('mongodb+srv://jeetakminder:heyideliverhere@i-delivery-cluster.fwv82t2.mongodb.net/?retryWrites=true&w=majority', { useNewUrlParser: true });
+mongoose.connect(process.env.MONGOOSEURL, { useNewUrlParser: true });
 
 
 app.enable('trust proxy');
@@ -73,7 +73,7 @@ app.get('/login', (req, res) => {
         res.send("Cookies not Saved ")
     }
 })
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT;
 app.listen(PORT, () => {
     console.log("Server Running at 5000");
 })

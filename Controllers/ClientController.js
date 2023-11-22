@@ -52,8 +52,14 @@ export const History = async (req, res) => {
 export const GetPath = async (req, res) => {
     if (req && req.user) {
         console.log(req.body)
-        // MidPointSchema.find({ _id: { $in: ids } })
+        var pathArray = req.body;
+        MidPointSchema.find({ _id: { $in: pathArray } }, { lat: '$latitude', lng: '$longitude' }).then((result) => {
+            res.send(result);
+        }).catch((err) => {
+            console.log(err);
+        })
     } else {
-
+        console.log("aaaaaaaaaa");
+        console.log(req.body);
     }
 }
