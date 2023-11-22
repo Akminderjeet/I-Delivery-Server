@@ -75,5 +75,5 @@ app.get('/login', (req, res) => {
 })
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
-    console.log("Server Running at 5000");
+    console.log("Server Running at 5000" + process.env.PORT);
 })
