@@ -45,6 +45,6 @@ router.get('/auth/google',
 
 router.get('/history', History);
 router.post('/createDelivery', createDelivery);
-router.post('/getPath', GetPath);
+router.post('/getpath', GetPath);
 
 export default router
