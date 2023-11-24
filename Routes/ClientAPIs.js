@@ -12,7 +12,7 @@ import { History } from "../Controllers/ClientController.js";
 var GoogleStrategy = GoogleAuth.Strategy;
 passport.use(new GoogleStrategy({
     clientID: process.env.CLIENT_GOOGLE_ID,
-    clientSecret: CLIENT_GOOGLE_SECRET,
+    clientSecret: process.env.CLIENT_GOOGLE_SECRET,
     callbackURL: "http://localhost:5000/client/google/callback",
     passReqToCallback: true
 },
