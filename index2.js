@@ -5,6 +5,7 @@ import express from 'express';
 import { createServer } from 'node:http';
 import { Server } from 'socket.io';
 import cron from 'node-cron'
+import dotenv from 'dotenv';
 import Orders from './Models/Orders.js'
 import MidPoints from './Models/MidPoints.js'
 import mongoose from 'mongoose';
@@ -19,7 +20,7 @@ import OrdersAssigned from './Models/OrdersAssigned.js';
 import { ObjectId } from 'mongodb';
 const app = express();
 const server = createServer(app);
-
+dotenv.config();
 
 app.use(bodyParser.json({ limit: "30mb", extended: true }));
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -47,7 +48,7 @@ app.get('/test', (req, res) => {
     io.emit('Bat', "YES");
 })
 
-mongoose.connect('mongodb+srv://jeetakminder:heyideliverhere@i-delivery-cluster.fwv82t2.mongodb.net/?retryWrites=true&w=majority', { useNewUrlParser: true });
+mongoose.connect(process.env.MONGOOSEURL, { useNewUrlParser: true });
 
 const myMap = new Map();
 app.use(
@@ -69,7 +70,7 @@ passport.deserializeUser(function (user, done) {
 
 app.enable('trust proxy');
 app.use(session({
-    secret: 'cats-secret',
+    secret: process.env.SESSION_SECRET,
     saveUninitialized: true,
     resave: false,
     proxy: true
@@ -80,8 +81,8 @@ app.use(passport.session());
 
 var GoogleStrategy = GoogleAuth.Strategy;
 passport.use(new GoogleStrategy({
-    clientID: '803687131159-lf1ifb6kia218gc19msoa333ecce2f5n.apps.googleusercontent.com',
-    clientSecret: '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',
+    clientID: process.env.AGENT_GOOGLE_ID,
+    clientSecret: process.env.AGENT_GOOGLE_SECRET,
     callbackURL: "http://localhost:4000/google/callback",
     passReqToCallback: true
 },

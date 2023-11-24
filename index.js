@@ -42,7 +42,7 @@ mongoose.connect(process.env.MONGOOSEURL, { useNewUrlParser: true });
 
 app.enable('trust proxy');
 app.use(session({
-    secret: 'cats-secret',
+    secret: process.env.SESSION_SECRET,
     saveUninitialized: true,
     resave: false,
     proxy: true
