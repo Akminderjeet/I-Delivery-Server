@@ -11,8 +11,8 @@ import { History } from "../Controllers/ClientController.js";
 
 var GoogleStrategy = GoogleAuth.Strategy;
 passport.use(new GoogleStrategy({
-    clientID: '803687131159-etrtghf2usahid2jp01glsda0g0viroa.apps.googleusercontent.com',
-    clientSecret: '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',
+    clientID: process.env.CLIENT_GOOGLE_ID,
+    clientSecret: CLIENT_GOOGLE_SECRET,
     callbackURL: "http://localhost:5000/client/google/callback",
     passReqToCallback: true
 },

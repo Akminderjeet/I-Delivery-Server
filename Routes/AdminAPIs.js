@@ -12,8 +12,8 @@ import { trackPoints } from "../Controllers/AdminController.js";
 
 var GoogleStrategy = GoogleAuth.Strategy;
 passport.use(new GoogleStrategy({
-    clientID: '803687131159-5cpq2kpje7mjf4101lfpqhk1fumbhc3j.apps.googleusercontent.com',
-    clientSecret: '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',
+    clientID: process.env.ADMIN_GOOGLE_ID,
+    clientSecret: process.env.ADMIN_GOOGLE_SECRET,
     callbackURL: "http://localhost:5000/admin/google/callback",
     passReqToCallback: true
 },
