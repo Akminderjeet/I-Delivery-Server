@@ -10,6 +10,8 @@ import { addNode } from '../Controllers/AdminController.js'
 import AgentSchema from '../Models/AgentProfile.js'
 import { trackPoints } from "../Controllers/AdminController.js";
 
+dotenv.config();
+
 var GoogleStrategy = GoogleAuth.Strategy;
 passport.use(new GoogleStrategy({
     clientID: process.env.ADMIN_GOOGLE_ID,
