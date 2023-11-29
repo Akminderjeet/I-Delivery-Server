@@ -13,7 +13,7 @@ import { trackPoints } from "../Controllers/AdminController.js";
 dotenv.config();
 
 var GoogleStrategy = GoogleAuth.Strategy;
-passport.use(new GoogleStrategy({
+passport.use('admin', new GoogleStrategy({
     clientID: process.env.ADMIN_GOOGLE_ID,
     clientSecret: process.env.ADMIN_GOOGLE_SECRET,
     callbackURL: "http://localhost:5000/admin/google/callback",
@@ -29,16 +29,16 @@ passport.use(new GoogleStrategy({
 ));
 
 router.get('/google/callback',
-    passport.authenticate('google', { failureRedirect: '/login' }),
+    passport.authenticate('admin', { failureRedirect: '/login' }),
     function (req, res) {
         // console.log(req.user);
         // res.redirect('http://localhost:3000/');
-        res.redirect('http://localhost:3000/');
+        res.redirect('http://localhost:3000/admin/request');
     }
 );
 
 router.get('/auth/google',
-    passport.authenticate('google', {
+    passport.authenticate('admin', {
         scope: [
             'profile',
             'email'

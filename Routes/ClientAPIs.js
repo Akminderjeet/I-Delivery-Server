@@ -10,7 +10,7 @@ import GoogleAuth from 'passport-google-oauth2';
 import { History } from "../Controllers/ClientController.js";
 
 var GoogleStrategy = GoogleAuth.Strategy;
-passport.use(new GoogleStrategy({
+passport.use('client', new GoogleStrategy({
     clientID: process.env.CLIENT_GOOGLE_ID,
     clientSecret: process.env.CLIENT_GOOGLE_SECRET,
     callbackURL: "http://localhost:5000/client/google/callback",
@@ -26,7 +26,7 @@ passport.use(new GoogleStrategy({
 ));
 
 router.get('/google/callback',
-    passport.authenticate('google', { failureRedirect: '/login' }),
+    passport.authenticate('client', { failureRedirect: '/login' }),
     function (req, res) {
         // console.log(req.user);
         // res.redirect('http://localhost:3000/');
@@ -35,7 +35,7 @@ router.get('/google/callback',
 );
 
 router.get('/auth/google',
-    passport.authenticate('google', {
+    passport.authenticate('client', {
         scope: [
             'profile',
             'email'
