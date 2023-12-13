@@ -120,64 +120,68 @@ app.get('/google/callback',
 
 
 
-// cron.schedule('* * * * *', () => {
-// console.log('running a task 5 minutes');
-// MidPoints.aggregate([
-// {
-// $group: {
-// _id: "$city"
-// }
-// }
-// ]).then((result) => {
-// result.forEach((item) => {
-// console.log(item._id);
-// myMap.set(item._id, []);
-// io.emit(item._id, item._id);
-// setInterval(async () => {
-// MidPoints.find({ city: item._id }).then((midPoints) => {
-// midPoints.forEach((point) => {
-// console.log(point.id);
-// Orders.find({ next: point.id,stage:0 ,current: { $exists: false } }, { _id: 1 }).then((parcels) => {
-// console.log(parcels);
-// console.log("-----");
-// AgentSchema.findOne({ status: 1, city: item._id }).then((agent) => {
-// if (agent) {
-// AgentSchema.updateOne({ _id: agent._id }, { $set: { status: 4 } })
-// parcels.forEach((parcel) => {
-// Add code for parcel stage update
-// OrdersAssigned.create({ agent: agent._id, order: parcel._id, activeStatus: 1 }).then(() => {
-// console.log("Updated++++++++++++++++++++++++++++++++++++++++")
+cron.schedule('* * * * *', () => {
+    console.log('running a task 5 minutes');
+    MidPoints.aggregate([
+        {
+            $group: {
+                _id: "$city"
+            }
+        }
+    ]).then((result) => {
+        result.forEach((item) => {
+            console.log(item._id);
+            myMap.set(item._id, []);
+            io.emit(item._id, item._id);
+            setInterval(async () => {
+                MidPoints.find({ city: item._id }).then((midPoints) => {
+                    midPoints.forEach((point) => {
+                        console.log(point.id);
+                        // Bangl
+                        Orders.find({ next: point.id, stage: 0, current: { $exists: false } }, { _id: 1 }).then((parcels) => {
+                            console.log(parcels);
+                            console.log("-----");
+                            //Banglar 
+                            // Banl---Delhi
+                            // banl-wesb -  
+                            AgentSchema.findOne({ status: 1, city: item._id }).then((agent) => {
+                                if (agent) {
+                                    AgentSchema.updateOne({ _id: agent._id }, { $set: { status: 4 } })
+                                    parcels.forEach((parcel) => {
+                                        //Add code for parcel stage update
+                                        OrdersAssigned.create({ agent: agent._id, order: parcel._id, activeStatus: 1 }).then(() => {
+                                            console.log("Updated++++++++++++++++++++++++++++++++++++++++")
 
-// })
-// })
-// } else {
-// console.log(agent);
-// console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
-// }
-// }).catch((err) => {
-// console.log(err);
-// })
-// })
-// Orders.aggregate([
-// {
-// $match: {
-// current: point._id
-// }
-// },
-// {
-// $group: {
-// _id: "$next",
-// ids: { $push: "$_id" }
-// }
-// }
-// ]).then((parcels) => {
-// })
-// })
-// })
-// }, 1000);
-// })
-// })
-// });
+                                        })
+                                    })
+                                } else {
+                                    console.log(agent);
+                                    console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+                                }
+                            }).catch((err) => {
+                                console.log(err);
+                            })
+                        })
+                        Orders.aggregate([
+                            {
+                                $match: {
+                                    current: point._id
+                                }
+                            },
+                            {
+                                $group: {
+                                    _id: "$next",
+                                    ids: { $push: "$_id" }
+                                }
+                            }
+                        ]).then((parcels) => {
+                        })
+                    })
+                })
+            }, 1000);
+        })
+    })
+});
 
 app.get('/agent/getOrders/', (req, res) => {
     console.log("asdff");
